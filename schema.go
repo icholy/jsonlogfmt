@@ -30,6 +30,8 @@ func (t Type) String() string {
 		return "string"
 	case BoolType:
 		return "bool"
+	case TimeType:
+		return "time"
 	default:
 		return "invalid"
 	}
@@ -47,6 +49,8 @@ func ParseType(s string) (Type, error) {
 		return StringType, nil
 	case "bool":
 		return BoolType, nil
+	case "time":
+		return TimeType, nil
 	default:
 		return 0, fmt.Errorf("invalid type: %q", s)
 	}
