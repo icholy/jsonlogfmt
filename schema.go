@@ -64,7 +64,7 @@ func ParseValue(t Type, s string) (interface{}, error) {
 	case BoolType:
 		b, err := strconv.ParseBool(s)
 		return b, err
-	case StringType:
+	case StringType, TimeType:
 		return s, nil
 	default:
 		return nil, fmt.Errorf("invalid type")
