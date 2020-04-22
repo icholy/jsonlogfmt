@@ -40,7 +40,7 @@ func (r *Reader) SetIndent(prefix, indent string) {
 // Read implements io.Reader
 func (r *Reader) Read(data []byte) (int, error) {
 	if r.buf.Len() == 0 {
-		m, err := r.decodeMap()
+		m, err := r.ReadMap()
 		if err != nil {
 			return 0, err
 		}
@@ -51,9 +51,9 @@ func (r *Reader) Read(data []byte) (int, error) {
 	return r.buf.Read(data)
 }
 
-// decodeMap reads the next logfmt record, converts the fields
+// ReadMap reads the next logfmt record, converts the fields
 // according to the schema and returns them in a map
-func (r *Reader) decodeMap() (map[string]interface{}, error) {
+func (r *Reader) ReadMap() (map[string]interface{}, error) {
 	if !r.dec.ScanRecord() {
 		if r.dec.Err() == nil {
 			return nil, io.EOF
