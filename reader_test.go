@@ -11,10 +11,12 @@ import (
 
 func TestDecodeMap(t *testing.T) {
 	schema := Schema{
-		"number":      NumberType,
-		"omg":         BoolType,
-		"size":        NumberType,
-		"temperature": NumberType,
+		Fields: map[string]Type{
+			"number":      NumberType,
+			"omg":         BoolType,
+			"size":        NumberType,
+			"temperature": NumberType,
+		},
 	}
 	f, err := os.Open(golden.Path("example.log"))
 	assert.NilError(t, err)

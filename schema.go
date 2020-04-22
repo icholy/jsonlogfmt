@@ -71,12 +71,33 @@ func ParseValue(t Type, s string) (interface{}, error) {
 }
 
 // Schema describes a set of fields and their types
-type Schema map[string]Type
+type Schema struct {
+	Strict bool // only output fields in the schema
+	Fields map[string]Type
+}
+
+// Valid returns true if the key should be included in the output
+func (s Schema) Valid(key string) bool {
+	if !s.Strict {
+		return true
+	}
+	_, ok := s.Fields[key]
+	return ok
+}
+
+// Parse the key/value pair
+func (s Schema) Parse(key, value string) (interface{}, error) {
+	typ, ok := s.Fields[key]
+	if !ok {
+		return value, nil
+	}
+	return ParseValue(typ, value)
+}
 
 // String returns a string representation of the schema.
 func (s Schema) String() string {
 	var b strings.Builder
-	for key, typ := range s {
+	for key, typ := range s.Fields {
 		fmt.Fprintf(&b, "%s:%v\n", key, typ)
 	}
 	return b.String()
@@ -84,7 +105,7 @@ func (s Schema) String() string {
 
 // Set implements flag.Value and allows expects fields
 // with the following syntax name:type (see ParseType for valid types)
-func (s Schema) Set(value string) error {
+func (s *Schema) Set(value string) error {
 	parts := strings.SplitN(value, ":", 2)
 	if len(parts) != 2 {
 		return fmt.Errorf("invalid syntax, expecing name:type")
@@ -94,6 +115,9 @@ func (s Schema) Set(value string) error {
 	if err != nil {
 		return err
 	}
-	s[key] = typ
+	if s.Fields == nil {
+		s.Fields = map[string]Type{}
+	}
+	s.Fields[key] = typ
 	return nil
 }

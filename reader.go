@@ -3,7 +3,6 @@ package jsonlogfmt
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 
 	"github.com/go-logfmt/logfmt"
@@ -18,10 +17,9 @@ type Reader struct {
 }
 
 // NewReader returns a Reader that converts from logfmt to json.
-// If a nil schema is provided, all values will be parsed as strings.
 func NewReader(r io.Reader, schema Schema) *Reader {
-	if schema == nil {
-		schema = Schema{}
+	if schema.Fields == nil {
+		schema.Fields = map[string]Type{}
 	}
 	var b bytes.Buffer
 	return &Reader{
@@ -63,14 +61,12 @@ func (r *Reader) ReadMap() (map[string]interface{}, error) {
 	m := map[string]interface{}{}
 	for r.dec.ScanKeyval() {
 		key, val := string(r.dec.Key()), string(r.dec.Value())
-		if typ, ok := r.schema[key]; ok {
-			v, err := ParseValue(typ, val)
+		if r.schema.Valid(key) {
+			v, err := r.schema.Parse(key, val)
 			if err != nil {
-				return nil, fmt.Errorf("key %q: %w", key, err)
+				return nil, err
 			}
 			m[key] = v
-		} else {
-			m[key] = val
 		}
 	}
 	return m, r.dec.Err()
