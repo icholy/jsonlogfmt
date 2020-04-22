@@ -156,7 +156,9 @@ func fieldType(f reflect.StructField) (Type, bool) {
 		return TimeType, true
 	}
 	switch t.Kind() {
-	case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
+	case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+		reflect.Float32, reflect.Float64:
 		return NumberType, true
 	case reflect.Bool:
 		return BoolType, true
