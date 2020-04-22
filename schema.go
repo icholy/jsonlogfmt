@@ -149,8 +149,11 @@ func fieldType(f reflect.StructField) (Type, bool) {
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
-	if t == reflect.TypeOf(time.Duration(0)) {
+	switch t {
+	case reflect.TypeOf(time.Duration(0)):
 		return DurationType, true
+	case reflect.TypeOf(time.Time{}):
+		return TimeType, true
 	}
 	switch t.Kind() {
 	case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:

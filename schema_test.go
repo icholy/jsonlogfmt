@@ -14,6 +14,7 @@ func TestInferFields(t *testing.T) {
 		Bar bool
 		Poo time.Duration `json:"what,"`
 		Yes string
+		Buz time.Time
 	}
 	fields := InferFields(reflect.TypeOf(&Thing{}))
 	assert.DeepEqual(t, fields, map[string]Type{
@@ -21,5 +22,6 @@ func TestInferFields(t *testing.T) {
 		"Bar":  BoolType,
 		"what": DurationType,
 		"Yes":  StringType,
+		"Buz":  TimeType,
 	})
 }
