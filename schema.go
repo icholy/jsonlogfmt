@@ -2,6 +2,7 @@ package jsonlogfmt
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -120,4 +121,55 @@ func (s *Schema) Set(value string) error {
 	}
 	s.Fields[key] = typ
 	return nil
+}
+
+// InferFields takes a struct type, and converts it into a set of
+// fields to be used in a schema. This function will panic
+// if t is not a struct type or a pointer to a struct
+func InferFields(t reflect.Type) map[string]Type {
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	if t.Kind() != reflect.Struct {
+		panic(fmt.Errorf("expected struct, got %v", t))
+	}
+	fields := map[string]Type{}
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		name := fieldKey(field)
+		if typ, ok := fieldType(field); ok {
+			fields[name] = typ
+		}
+	}
+	return fields
+}
+
+func fieldType(f reflect.StructField) (Type, bool) {
+	t := f.Type
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	if t == reflect.TypeOf(time.Duration(0)) {
+		return DurationType, true
+	}
+	switch t.Kind() {
+	case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
+		return NumberType, true
+	case reflect.Bool:
+		return BoolType, true
+	case reflect.String:
+		return StringType, true
+	}
+	return 0, false
+}
+
+func fieldKey(f reflect.StructField) string {
+	tag := f.Tag.Get("json")
+	if tag == "" {
+		return f.Name
+	}
+	if idx := strings.Index(tag, ","); idx != -1 {
+		return tag[:idx]
+	}
+	return tag
 }
