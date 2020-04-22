@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -17,7 +18,8 @@ func main() {
 	flag.BoolVar(&pretty, "pretty", false, "pretty print the output")
 	flag.Parse()
 	if schema.Strict && len(schema.Fields) == 0 {
-		log.Fatal("-strict requires at least one -field to be specified")
+		fmt.Println("-strict requires at least one -field to be specified")
+		os.Exit(1)
 	}
 	r := jsonlogfmt.NewReader(os.Stdin, schema)
 	if pretty {
