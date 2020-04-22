@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// Type is the type of a field
 type Type int
 
 const (
@@ -17,6 +18,7 @@ const (
 	BoolType
 )
 
+// String returns the string representation of a type
 func (t Type) String() string {
 	switch t {
 	case NumberType:
@@ -32,6 +34,8 @@ func (t Type) String() string {
 	}
 }
 
+// ParseType parses the string representation of a type.
+// Currently: number, duration, string, bool
 func ParseType(s string) (Type, error) {
 	switch s {
 	case "number":
@@ -47,6 +51,7 @@ func ParseType(s string) (Type, error) {
 	}
 }
 
+// ParseValue parses a string as the provided type
 func ParseValue(t Type, s string) (interface{}, error) {
 	switch t {
 	case NumberType:
@@ -65,8 +70,10 @@ func ParseValue(t Type, s string) (interface{}, error) {
 	}
 }
 
+// Schema describes a set of fields and their types
 type Schema map[string]Type
 
+// String returns a string representation of the schema.
 func (s Schema) String() string {
 	var b strings.Builder
 	for key, typ := range s {
@@ -75,6 +82,8 @@ func (s Schema) String() string {
 	return b.String()
 }
 
+// Set implements flag.Value and allows expects fields
+// with the following syntax name:type (see ParseType for valid types)
 func (s Schema) Set(value string) error {
 	parts := strings.SplitN(value, ":", 2)
 	if len(parts) != 2 {
