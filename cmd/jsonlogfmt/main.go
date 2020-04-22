@@ -11,10 +11,14 @@ import (
 
 func main() {
 	var pretty bool
-	schema := jsonlogfmt.Schema{}
+	var schema jsonlogfmt.Schema
 	flag.Var(&schema, "field", "typed name:type fields")
+	flag.BoolVar(&schema.Strict, "strict", false, "only output specified fields")
 	flag.BoolVar(&pretty, "pretty", false, "pretty print the output")
 	flag.Parse()
+	if schema.Strict && len(schema.Fields) == 0 {
+		log.Fatal("-strict requires at least one -field to be specified")
+	}
 	r := jsonlogfmt.NewReader(os.Stdin, schema)
 	if pretty {
 		r.SetIndent("", "  ")
